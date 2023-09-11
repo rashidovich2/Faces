@@ -58,7 +58,7 @@ class FaceAppImage(object):
         # To be used for debugging
         self._request = None
 
-        if (url or file) and not (url and file) and not (code or device_id):
+        if (url or file) and (not url or not file) and not code and not device_id:
             device_id = self._generate_device_id()
             headers = self._generate_headers(device_id)
 
@@ -85,7 +85,7 @@ class FaceAppImage(object):
             self.code = code
             self.device_id = device_id
 
-        elif (code and device_id) and not (url or file):
+        elif (code and device_id) and not url and not file:
             self.code = code
             self.device_id = device_id
 
@@ -111,8 +111,7 @@ class FaceAppImage(object):
             '{0}/{1}/filters/{2}?cropped={3}'.format(BASE_API_URL, code, filter_name, int(cropped)),
             headers=headers)
 
-        error = request.headers.get('X-FaceApp-ErrorCode')
-        if error:
+        if error := request.headers.get('X-FaceApp-ErrorCode'):
             if error == 'bad_filter_id':
                 raise BadFilterID('Filter id is bad.')  # FIXME: If bad filter id has space in name it passes anyway.
             else:
@@ -155,8 +154,9 @@ class FaceAppImage(object):
         This method will generate device id according to DEVICE_ID_LENGTH.
         :return: device id.
         """
-        device_id = ''.join(random.choice(string.ascii_letters) for _ in range(DEVICE_ID_LENGTH))
-        return device_id
+        return ''.join(
+            random.choice(string.ascii_letters) for _ in range(DEVICE_ID_LENGTH)
+        )
 
     @staticmethod
     def _generate_headers(device_id):
@@ -177,7 +177,7 @@ class FaceAppImage(object):
                 face_app_filter['only_cropped'] and not face_app_filter['is_paid']]
 
     def __str__(self):
-        return 'FaceAppImage#{}'.format(self.code)
+        return f'FaceAppImage#{self.code}'
 
 
 class IllegalArgSet(ValueError):

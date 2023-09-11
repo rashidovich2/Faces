@@ -54,8 +54,8 @@ class TestKnownFilters(unittest.TestCase):
                 status = 'OK'
             except faces.BadFilterID:
                 status = 'FAIL'
-            print('Probed filter "{}" : {}'.format(face_app_filter, status))
-        print('DONE. {} filters operational.'.format(num))
+            print(f'Probed filter "{face_app_filter}" : {status}')
+        print(f'DONE. {num} filters operational.')
         if not num:
             raise Exception('All known filters failed.')
 
